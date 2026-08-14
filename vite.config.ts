@@ -5,6 +5,9 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    base: '/splunkdsa/',
+    plugins: [react()],
+    
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
