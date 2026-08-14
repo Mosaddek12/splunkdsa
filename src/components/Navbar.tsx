@@ -16,7 +16,9 @@ import {
   DollarSign,
   BookOpen,
   RotateCcw,
-  Plus
+  Plus,
+  Building2,
+  Edit3
 } from 'lucide-react';
 import { Project, ActiveView } from '../types';
 import { calculateGrandTotals, calculateMaturityRollups, calculateEpsFromGbDay } from '../utils/calculations';
@@ -34,6 +36,7 @@ interface NavbarProps {
   onOpenRunbooksModal: () => void;
   onOpenExportModal: () => void;
   onOpenCostModal: () => void;
+  onOpenMetadataModal: () => void;
   onResetDefaults: () => void;
   onUpdateMetadata?: (metadata: Project['metadata']) => void;
 }
@@ -51,14 +54,25 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenRunbooksModal,
   onOpenExportModal,
   onOpenCostModal,
+  onOpenMetadataModal,
   onResetDefaults,
   onUpdateMetadata
 }) => {
   const dataSources = project.data_sources || [];
   const maturity = project.maturity || [];
-  const metadata = project.metadata || { buffer_pct: 20, threshold_min_indexed_pct: 20, customer_name: '', owner_name: '', industry: '' };
+  const metadata = project.metadata || {
+    prepared_by_org: 'Thakral Information Systems LTD',
+    buffer_pct: 20,
+    threshold_min_indexed_pct: 20,
+    customer_name: 'Client Organization',
+    owner_name: 'Principal Security Architect',
+    industry: 'Financial Services'
+  };
   const epsConfig = project.eps_config || { min_bytes: 250, max_bytes: 750, pct_min: 0.55 };
   const snapshots = project.snapshots || [];
+
+  const preparedByOrg = metadata.prepared_by_org || 'Thakral Information Systems LTD';
+  const customerName = metadata.customer_name || 'Client Organization';
 
   const grandTotals = calculateGrandTotals(dataSources, metadata.buffer_pct || 20);
   const maturityRollups = calculateMaturityRollups(maturity);
@@ -105,21 +119,27 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-4">
         {/* Brand & Project Info */}
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-inner text-white font-bold tracking-wider text-sm shrink-0">
-            DSA
+          <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shadow-inner text-white font-black tracking-wider text-sm shrink-0">
+            TIS
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold tracking-tight text-zinc-100 text-base flex items-center gap-1.5">
-                Splunk DSA Platform
+              <span className="font-bold tracking-tight text-zinc-100 text-sm sm:text-base flex items-center gap-1.5">
+                {preparedByOrg}
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/60 font-mono">
-                  v2.5
+                  DSA Platform
                 </span>
               </span>
             </div>
-            <div className="text-xs text-zinc-400 truncate max-w-[260px] sm:max-w-xs">
-              {metadata.customer_name || 'Enterprise Assessment'} &bull; {metadata.industry || 'Financial Services'}
-            </div>
+            <button
+              onClick={onOpenMetadataModal}
+              className="text-xs text-zinc-300 hover:text-emerald-400 flex items-center gap-1.5 group text-left transition"
+              title="Click to edit Target Client Name, Prepared By, and Scope Details"
+            >
+              <span className="text-zinc-400 font-medium">Prepared for:</span>
+              <strong className="text-emerald-400 font-bold group-hover:underline">{customerName}</strong>
+              <Edit3 className="w-3 h-3 text-zinc-500 group-hover:text-emerald-400" />
+            </button>
           </div>
         </div>
 
@@ -165,6 +185,16 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Global Action Toolbar */}
         <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            id="btn-client-metadata"
+            onClick={onOpenMetadataModal}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-700/60 shadow-xs transition"
+            title="Configure Customer Name, Prepared By, Recipient, and Assessment Parameters"
+          >
+            <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Client & Scope</span>
+          </button>
+
           <button
             id="btn-industry-templates"
             onClick={onOpenPresetModal}

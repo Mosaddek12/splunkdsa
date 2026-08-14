@@ -60,10 +60,12 @@ export interface EpsCalcConfig {
 
 export interface ProjectMetadata {
   id?: string;
-  customer_name: string;
-  project_name?: string;
+  prepared_by_org?: string; // Default: 'Thakral Information Systems LTD'
+  customer_name: string; // Target Customer / Client organization (variable & manually insertable)
+  prepared_for_recipient?: string; // Contact Person / Designation (e.g. CISO, Head of SOC, IT Director)
+  project_name?: string; // Document / Assessment title
   opportunity_id?: string;
-  owner_name?: string;
+  owner_name?: string; // Consultant / Solution Architect name
   owner_email?: string;
   industry?: string;
   target_date?: string;

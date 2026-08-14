@@ -30,15 +30,19 @@ import { SplunkSPLModal } from './components/SplunkSPLModal';
 import { TARunbooksModal } from './components/TARunbooksModal';
 import { ExportModal } from './components/ExportModal';
 import { CostEstimatorModal } from './components/CostEstimatorModal';
+import { ProjectMetadataModal } from './components/ProjectMetadataModal';
 
 const STORAGE_KEY = 'splunk_dsa_active_project_v1';
 
 const createInitialProject = (): Project => ({
   id: `proj-${Date.now()}`,
   metadata: {
-    customer_name: 'Thakral Information Systems PLC',
-    project_name: 'FY26 Splunk Security Sizing & Maturity',
-    owner_name: 'Principal Security Architect',
+    prepared_by_org: 'Thakral Information Systems LTD',
+    customer_name: 'Apex Financial Services Corp.',
+    prepared_for_recipient: 'Head of Information Security & SOC Operations',
+    project_name: 'Enterprise Splunk Security Sizing & Maturity Assessment',
+    owner_name: 'Principal Solutions Architect',
+    owner_email: 'security.solutions@thakral.com',
     industry: 'Financial Services',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -93,6 +97,7 @@ export default function App() {
   const [activeView, setActiveView] = useState<ActiveView>('sizing_dashboard');
 
   // Modal visibility states
+  const [isMetadataModalOpen, setIsMetadataModalOpen] = useState(false);
   const [isEpsModalOpen, setIsEpsModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isSnapshotModalOpen, setIsSnapshotModalOpen] = useState(false);
@@ -319,6 +324,7 @@ export default function App() {
         onOpenRunbooksModal={() => setIsRunbooksModalOpen(true)}
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenCostModal={() => setIsCostModalOpen(true)}
+        onOpenMetadataModal={() => setIsMetadataModalOpen(true)}
         onResetDefaults={handleResetToDefaults}
       />
 
@@ -327,10 +333,9 @@ export default function App() {
         {activeView === 'sizing_dashboard' && (
           <SizingDashboard
             project={project}
-            onUpdateMetadata={handleUpdateMetadata}
             onNavigateToGrid={() => setActiveView('sizing_grid')}
-            onNavigateToMaturity={() => setActiveView('maturity')}
             onNavigateToRecommendations={() => setActiveView('recommendations')}
+            onOpenMetadataModal={() => setIsMetadataModalOpen(true)}
           />
         )}
 
@@ -374,6 +379,13 @@ export default function App() {
       </main>
 
       {/* Modal Dialogs */}
+      <ProjectMetadataModal
+        isOpen={isMetadataModalOpen}
+        onClose={() => setIsMetadataModalOpen(false)}
+        metadata={project.metadata}
+        onSaveMetadata={handleUpdateMetadata}
+      />
+
       <EpsCalculatorModal
         isOpen={isEpsModalOpen}
         onClose={() => setIsEpsModalOpen(false)}
@@ -388,6 +400,7 @@ export default function App() {
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         project={project}
+        onOpenMetadataModal={() => setIsMetadataModalOpen(true)}
       />
 
       <SnapshotCompareModal

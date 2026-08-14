@@ -55,11 +55,17 @@ export function exportProjectToExcel(project: Project) {
     project.eps_config.pct_min
   );
 
+  const preparedByOrg = project.metadata.prepared_by_org || 'Thakral Information Systems LTD';
+  const customerName = project.metadata.customer_name || 'Client Organization';
+
   const summaryRows: any[] = [
-    ['SPLUNK DATA SOURCE ASSESSMENT - EXECUTIVE SUMMARY'],
-    ['Customer Name:', project.metadata.customer_name],
-    ['Owner / SE:', project.metadata.owner_name, 'Email:', project.metadata.owner_email],
-    ['Industry:', project.metadata.industry, 'Assessment Date:', new Date(project.metadata.updated_at).toLocaleDateString()],
+    ['SPLUNK DATA SOURCE ASSESSMENT - EXECUTIVE SIZING & MATURITY SUMMARY'],
+    ['Prepared By (Partner):', preparedByOrg],
+    ['Prepared For (Client):', customerName],
+    ['Attention / Recipient:', project.metadata.prepared_for_recipient || 'Executive Security Stakeholders'],
+    ['Assessment Title:', project.metadata.project_name || 'Splunk Security Sizing & Data Source Assessment'],
+    ['Lead Solutions Architect:', project.metadata.owner_name || 'Solutions Engineering', 'Email:', project.metadata.owner_email || ''],
+    ['Industry Vertical:', project.metadata.industry || 'Enterprise', 'Assessment Date:', new Date(project.metadata.updated_at || project.metadata.created_at || Date.now()).toLocaleDateString()],
     [],
     ['KEY SIZING METRICS', 'VALUE'],
     ['Total Projected Data / Day (GB):', Number(grandTotals.totalProjectedGbDay.toFixed(2))],

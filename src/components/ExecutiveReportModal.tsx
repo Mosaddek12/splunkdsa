@@ -33,18 +33,32 @@ interface ExecutiveReportModalProps {
   isOpen: boolean;
   onClose: () => void;
   project: Project;
+  onOpenMetadataModal?: () => void;
 }
 
 export const ExecutiveReportModal: React.FC<ExecutiveReportModalProps> = ({
   isOpen,
   onClose,
-  project
+  project,
+  onOpenMetadataModal
 }) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   if (!isOpen) return null;
 
-  const grandTotals = calculateGrandTotals(project.data_sources, project.metadata.buffer_pct);
+  const metadata = project.metadata || {
+    prepared_by_org: 'Thakral Information Systems LTD',
+    customer_name: 'Client Organization',
+    owner_name: 'Principal Security Architect',
+    industry: 'Enterprise',
+    buffer_pct: 20,
+  };
+
+  const preparedByOrg = metadata.prepared_by_org || 'Thakral Information Systems LTD';
+  const customerName = metadata.customer_name || 'Client Organization';
+  const docTitle = metadata.project_name || 'Splunk Security Sizing & Data Source Assessment';
+
+  const grandTotals = calculateGrandTotals(project.data_sources, metadata.buffer_pct || 20);
   const categorySummaries = calculateCategorySummaries(project.data_sources);
   const maturityRollups = calculateMaturityRollups(project.maturity);
   const eps = calculateEpsFromGbDay(
@@ -75,9 +89,26 @@ export const ExecutiveReportModal: React.FC<ExecutiveReportModalProps> = ({
         <div className="bg-zinc-900 text-white p-4 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2">
             <Printer className="w-5 h-5 text-emerald-400" />
-            <h3 className="font-bold text-sm">Executive Presentation & Assessment Summary</h3>
+            <div>
+              <h3 className="font-bold text-sm">Executive Presentation & Assessment Summary</h3>
+              <p className="text-[11px] text-zinc-400">
+                Prepared by <strong className="text-zinc-200">{preparedByOrg}</strong> for <strong className="text-emerald-400">{customerName}</strong>
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
+            {onOpenMetadataModal && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenMetadataModal();
+                }}
+                className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold border border-zinc-700 flex items-center gap-1.5 transition"
+                title="Edit Client Name, Prepared By, and Scope Details"
+              >
+                <span>Edit Client & Title</span>
+              </button>
+            )}
             <button
               onClick={handlePrint}
               className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition"
@@ -93,26 +124,51 @@ export const ExecutiveReportModal: React.FC<ExecutiveReportModalProps> = ({
 
         {/* Printable Document Body */}
         <div ref={printRef} className="p-8 space-y-8 overflow-y-auto flex-1 bg-white text-zinc-900 font-sans print:p-0">
-          {/* Header & Title */}
-          <div className="border-b-2 border-zinc-900 pb-5 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                  Splunk Security Sizing & Maturity
-                </span>
+          {/* Organization & Header Bar */}
+          <div className="border-b-2 border-zinc-900 pb-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded border border-emerald-300">
+                    {preparedByOrg}
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded">
+                    Splunk Enterprise Security Assessment
+                  </span>
+                </div>
+                <h1 className="text-2xl font-black text-zinc-950 mt-1 tracking-tight">
+                  {docTitle}
+                </h1>
+                <div className="mt-2 text-xs text-zinc-600 space-y-0.5">
+                  <p>
+                    <span className="text-zinc-400 font-semibold uppercase text-[10px] mr-1.5">Prepared For:</span>
+                    <strong className="text-zinc-950 text-sm font-bold">{customerName}</strong>
+                    {metadata.industry && <span className="text-zinc-500"> ({metadata.industry})</span>}
+                  </p>
+                  {metadata.prepared_for_recipient && (
+                    <p>
+                      <span className="text-zinc-400 font-semibold uppercase text-[10px] mr-1.5">Attention:</span>
+                      <strong className="text-zinc-800">{metadata.prepared_for_recipient}</strong>
+                    </p>
+                  )}
+                </div>
               </div>
-              <h1 className="text-2xl font-extrabold text-zinc-950 mt-1 tracking-tight">
-                Data Source Assessment & Architecture Recommendation
-              </h1>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                Prepared for <strong className="text-zinc-900">{project.metadata.customer_name || 'Client Organization'}</strong> ({project.metadata.industry || 'Enterprise'})
-              </p>
-            </div>
 
-            <div className="text-right text-xs text-zinc-500 space-y-0.5">
-              <p>Lead Engineer: <strong className="text-zinc-800">{project.metadata.owner_name || 'Sales Engineering'}</strong></p>
-              <p>Assessment Date: <strong className="text-zinc-800">{new Date(project.metadata.updated_at).toLocaleDateString()}</strong></p>
-              <p>Framework Version: <strong className="text-zinc-800">DSA v2.5 / CIM 5.0</strong></p>
+              <div className="text-right text-xs text-zinc-600 space-y-1 bg-zinc-50 p-3 rounded-xl border border-zinc-200">
+                <p>
+                  <span className="text-zinc-400 uppercase text-[10px] font-semibold block">Prepared By:</span>
+                  <strong className="text-zinc-900 font-bold">{preparedByOrg}</strong>
+                </p>
+                <p>
+                  Lead Architect: <strong className="text-zinc-800">{metadata.owner_name || 'Solution Architect'}</strong>
+                </p>
+                {metadata.owner_email && (
+                  <p className="text-zinc-500 font-mono text-[11px]">{metadata.owner_email}</p>
+                )}
+                <p className="text-[11px] text-zinc-500 pt-1 border-t border-zinc-200">
+                  Date: <strong>{new Date(metadata.updated_at || metadata.created_at || Date.now()).toLocaleDateString()}</strong>
+                </p>
+              </div>
             </div>
           </div>
 
@@ -133,7 +189,7 @@ export const ExecutiveReportModal: React.FC<ExecutiveReportModalProps> = ({
                 <div className="text-xl font-bold font-mono text-emerald-800 mt-1">
                   {grandTotals.bufferedProjectedGbDay.toFixed(1)} <span className="text-xs font-normal text-emerald-700">GB/d</span>
                 </div>
-                <span className="text-[11px] text-emerald-700">+{project.metadata.buffer_pct}% license headroom</span>
+                <span className="text-[11px] text-emerald-700">+{metadata.buffer_pct}% license headroom</span>
               </div>
 
               <div className="border-r border-zinc-200 pr-3">
@@ -228,9 +284,15 @@ export const ExecutiveReportModal: React.FC<ExecutiveReportModalProps> = ({
           </div>
 
           {/* Signoff Footer */}
-          <div className="border-t border-zinc-200 pt-6 flex items-center justify-between text-xs text-zinc-400">
-            <span>Generated via Splunk DSA Platform</span>
-            <span>Confidential — Prepared for Customer Evaluation</span>
+          <div className="border-t border-zinc-200 pt-6 flex items-center justify-between text-xs text-zinc-500">
+            <div>
+              <p className="font-semibold text-zinc-700">{preparedByOrg}</p>
+              <p className="text-[11px] text-zinc-400">Enterprise Solutions & Security Architecture Practice</p>
+            </div>
+            <div className="text-right">
+              <span className="block font-medium">Confidential &bull; Prepared for {customerName}</span>
+              <span className="text-[11px] text-zinc-400">Generated via Splunk DSA Platform</span>
+            </div>
           </div>
         </div>
       </div>

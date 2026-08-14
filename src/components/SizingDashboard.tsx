@@ -22,7 +22,11 @@ import {
   Sliders,
   Sparkles,
   ArrowRight,
-  ShieldAlert
+  ShieldAlert,
+  Building2,
+  Edit3,
+  UserCheck,
+  Calendar
 } from 'lucide-react';
 import { DataSourceItem, Project } from '../types';
 import {
@@ -35,6 +39,7 @@ interface SizingDashboardProps {
   project: Project;
   onNavigateToGrid: () => void;
   onNavigateToRecommendations: () => void;
+  onOpenMetadataModal?: () => void;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -59,9 +64,20 @@ const CATEGORY_COLORS: Record<string, string> = {
 export const SizingDashboard: React.FC<SizingDashboardProps> = ({
   project,
   onNavigateToGrid,
-  onNavigateToRecommendations
+  onNavigateToRecommendations,
+  onOpenMetadataModal
 }) => {
   const [scenarioIncreasePct, setScenarioIncreasePct] = useState<number>(0);
+  const metadata = project.metadata || {
+    prepared_by_org: 'Thakral Information Systems LTD',
+    customer_name: 'Client Organization',
+    owner_name: 'Principal Security Architect',
+    industry: 'Financial Services',
+    buffer_pct: 20
+  };
+
+  const preparedByOrg = metadata.prepared_by_org || 'Thakral Information Systems LTD';
+  const customerName = metadata.customer_name || 'Client Organization';
 
   const grandTotals = useMemo(() => {
     return calculateGrandTotals(project.data_sources, project.metadata.buffer_pct);
@@ -140,6 +156,53 @@ export const SizingDashboard: React.FC<SizingDashboardProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Client Engagement & Document Scope Banner */}
+      <div className="bg-gradient-to-r from-zinc-900 via-zinc-850 to-zinc-900 text-white rounded-2xl border border-zinc-800 p-5 shadow-md flex flex-wrap items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              {preparedByOrg}
+            </span>
+            <span className="text-zinc-500 text-xs">&bull;</span>
+            <span className="text-zinc-300 text-xs font-semibold">
+              {metadata.project_name || 'Splunk Security Sizing & Data Source Assessment'}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+            <div className="flex items-center gap-1.5 text-zinc-300">
+              <span className="text-zinc-400">Prepared For:</span>
+              <strong className="text-emerald-400 font-bold text-sm">{customerName}</strong>
+              {metadata.industry && <span className="text-zinc-400">({metadata.industry})</span>}
+            </div>
+            {metadata.prepared_for_recipient && (
+              <div className="flex items-center gap-1 text-zinc-300">
+                <span className="text-zinc-500">&bull;</span>
+                <span className="text-zinc-400">Attention:</span>
+                <strong className="text-zinc-200">{metadata.prepared_for_recipient}</strong>
+              </div>
+            )}
+            <div className="flex items-center gap-1 text-zinc-300">
+              <span className="text-zinc-500">&bull;</span>
+              <span className="text-zinc-400">Lead Architect:</span>
+              <span className="text-zinc-200 font-medium">{metadata.owner_name || 'Solutions Engineering'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {onOpenMetadataModal && (
+            <button
+              onClick={onOpenMetadataModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition"
+              title="Edit Target Client Name, Organization, Attention, and Scope"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Edit Client Details</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Big-Number Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Card 1: Total Projected */}
