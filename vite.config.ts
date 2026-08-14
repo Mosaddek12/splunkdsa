@@ -19,4 +19,6 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
+  base: '/splunkdsa/', // ⚠️ Make sure to use your exact repository name here!
+  plugins: [react()],
 });
