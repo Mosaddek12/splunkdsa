@@ -5,6 +5,8 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    base: '/splunkdsa/', // ⚠️ Make sure to use your exact repository name here!
+    plugins: [react()],
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
@@ -19,6 +21,5 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
-  base: '/splunkdsa/', // ⚠️ Make sure to use your exact repository name here!
-  plugins: [react()],
+  
 });
