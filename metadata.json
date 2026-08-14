@@ -1,0 +1,6 @@
+{
+  "name": "Splunk Data Source Assessment (DSA) & Maturity Platform",
+  "description": "Interactive platform for Splunk Sales Engineers & security teams to estimate data ingest volumes, benchmark detection coverage, and score security operations maturity.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
